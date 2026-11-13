@@ -6,34 +6,34 @@
 // =============================================================
 
 export const project = {
-  teamName: 'TODO: Team Name',
-  appName: 'Community Compass',
-  tagline: 'Find help nearby, in plain language.',
+  teamName: 'Insight to Impact (i2i)',
+  appName: 'Community Insight to Impact Explorer',
+  tagline: 'Understand data center impacts. Explore overlooked solutions. Create community change.',
 
   // One or two sentences. Who is hurting, and how?
   problemStatement:
-    'TODO: Families in our neighborhood struggle to find free food, health, and youth programs because the information is scattered and hard to read.',
+    'AI infrastructure creates environmental and community impacts that can be difficult to identify, evaluate, and address. This application helps people research ways to reduce data center impacts, assess potential mitigation measures and their trade-offs, and develop accountability questions using source-supported information.',
 
   // One specific person. Give them a name, an age, and a situation.
-  targetUser: 'TODO: Maria, 34, a parent of two who works evenings and searches on her phone.',
+  targetUser: 'Alex, 18+, a Community resident curious about local environmental issues.',
 
-  community: 'TODO: Chicago, IL',
-  theme: 'TODO: Education Access / Global Health / Clean Water / Climate / Child Protection',
+  community: 'Loudoun County, VA',
+  theme: 'Climate Action / Environmental Accountability',
 
   // How you will know it works. Make it measurable.
-  successMeasure: 'TODO: A parent can find a matching resource in under 2 minutes.',
+  successMeasure: 'A user can select water use, noise, or air quality and receive a source-supported brief explaining what is known, potential mitigation measures and trade-offs, relevant decision-makers, and questions or measurements needed to evaluate effectiveness.',
 
   teamMembers: [
-    { name: 'TODO', role: 'Product owner (writes tickets)' },
-    { name: 'TODO', role: 'Front end (React)' },
-    { name: 'TODO', role: 'Back end (API + database)' },
-    { name: 'TODO', role: 'AI agent and skills' },
+    { name: 'members team', role: 'Product owner (writes tickets)' },
+    { name: 'members team', role: 'Front end (React)' },
+    { name: 'members team', role: 'Back end (API + database)' },
+    { name: 'members team', role: 'AI agent and skills' },
   ],
 
   // The personality of your AI agent. Used in its system prompt.
   agent: {
-    name: 'Compass',
-    voice: 'warm, encouraging, and plain-spoken, like a helpful neighbor',
+    name: 'Impact Explorer',
+    voice: 'clear, warm, encouraging, evidence-focused, accessible, and plain-spoken, like a helpful neighbor',
     readingLevel: '6th grade',
   },
 };
