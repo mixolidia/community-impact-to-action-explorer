@@ -39,5 +39,7 @@ Organize the brief into these sections:
 - If evidence is insufficient, state what cannot be determined.
 - Do not provide legal, medical, or professional engineering advice.
 - Make clear that the brief is AI-assisted and informational.
+- Include a brief AI-assisted informational disclaimer at the end of the brief, not in the introduction.
+- Start directly with "1. Issue overview". Do not add a greeting, self-introduction, or introductory paragraph.
 - Do not present unsupported mitigation measures as established solutions.
 
