@@ -24,12 +24,24 @@ export async function routeWithAi({ message, skills, model }) {
   return schema.parse(result); // double-check the shape before we trust it
 }
 
-// No AI needed: simple keyword rules. Used in mock mode or if the AI router fails.
+// No AI needed: keyword rules used in mock mode or if AI routing fails.
 const RULES = [
-  { skill: 'translator', pattern: /\b(translate|translation|in spanish|in english|en español|in polish|in arabic|in chinese)\b/i },
-  { skill: 'plain-language-explainer', pattern: /\b(what does .* mean|explain|simplify|plain language|confus\w*|don't understand|letter|notice|form)\b/i },
-  { skill: 'action-plan-builder', pattern: /\b(what should i do|where do i start|next steps?|plan|how do i|steps)\b/i },
-  { skill: 'resource-finder', pattern: /\b(where|find|near|nearby|program|pantry|food|clinic|shelter|tutor|job|camp|class|free)\b/i },
+  {
+    skill: 'impact-to-action-brief',
+    pattern: /\b(data centers?|environmental|water|noise|air quality|pollution|emissions?|cooling|electricity|energy|mitigation|stakeholders?|accountability|community impacts?|loudoun)\b/i,
+  },
+  {
+    skill: 'translator',
+    pattern: /\b(translate|translation|in spanish|in english|en español|in polish|in arabic|in chinese)\b/i,
+  },
+  {
+    skill: 'plain-language-explainer',
+    pattern: /\b(what does .* mean|explain|simplify|plain language|confus\w*|don't understand)\b/i,
+  },
+  {
+    skill: 'action-plan-builder',
+    pattern: /\b(what should i do|where do i start|next steps?|plan|how do i|steps)\b/i,
+  },
 ];
 
 export function routeWithRules(message, skills) {
@@ -38,5 +50,9 @@ export function routeWithRules(message, skills) {
       return { skill: rule.skill, reason: 'Matched a keyword rule.' };
     }
   }
-  return { skill: 'resource-finder', reason: 'Default skill.' };
+
+  return {
+    skill: 'impact-to-action-brief',
+    reason: 'Default skill for environmental impact research.',
+  };
 }
