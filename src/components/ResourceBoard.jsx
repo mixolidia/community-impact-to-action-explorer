@@ -1,95 +1,67 @@
-import { useEffect, useState } from 'react';
-import { api } from '../api.js';
+import { useState } from 'react';
 
-const EMPTY = { name: '', category: 'Food', description: '', neighborhood: '', hours: '', phone: '', website: '' };
+const ISSUES = [
+  {
+    id: 'all',
+    title: 'All three issues',
+    description: 'Explore water use, noise, and air quality together, including possible connections and trade-offs.',
+  },
+  {
+    id: 'water',
+    title: 'Water use',
+    description: 'Explore cooling-related water demand, potential impacts, and ways to reduce consumption.',
+  },
+  {
+    id: 'noise',
+    title: 'Noise',
+    description: 'Explore noise from cooling equipment, generators, and other data center operations.',
+  },
+  {
+    id: 'air',
+    title: 'Air quality',
+    description: 'Explore potential air pollution from backup generators and other data center activities.',
+  },
+];
 
-// Reads and writes the `resources` table through the API.
-export default function ResourceBoard() {
-  const [resources, setResources] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [search, setSearch] = useState('');
-  const [category, setCategory] = useState('');
-  const [form, setForm] = useState(EMPTY);
-  const [showForm, setShowForm] = useState(false);
-  const [message, setMessage] = useState(null);
+export default function ResourceBoard({ onSelectIssue }) {
+  const [selectedIssue, setSelectedIssue] = useState('');
 
-  async function load(nextSearch = search, nextCategory = category) {
-    try {
-      const data = await api.resources({ search: nextSearch, category: nextCategory });
-      setResources(data.resources);
-      setCategories(data.categories);
-    } catch (err) {
-      setMessage({ kind: 'error', text: err.message });
-    }
+  function handleSelect(issue) {
+    setSelectedIssue(issue);
+    onSelectIssue(issue);
   }
-
-  useEffect(() => {
-    load('', '');
-  }, []);
-
-  async function save(event) {
-    event.preventDefault();
-    try {
-      await api.addResource(form);
-      setForm(EMPTY);
-      setShowForm(false);
-      setMessage({ kind: 'ok', text: 'Saved to the database!' });
-      load();
-    } catch (err) {
-      setMessage({ kind: 'error', text: err.message }); // zod's friendly message from the server
-    }
-  }
-
-  const update = (field) => (e) => setForm({ ...form, [field]: e.target.value });
 
   return (
-    <section className="card resources" aria-labelledby="res-title">
+    <section className="card resources" aria-labelledby="issues-title">
       <div className="card-head">
-        <h2 id="res-title">Community resources</h2>
-        <button type="button" className="ghost" onClick={() => setShowForm(!showForm)}>
-          {showForm ? 'Close' : '+ Add one'}
-        </button>
+        <h2 id="issues-title">Explore Environmental Impacts</h2>
       </div>
 
-      <form className="filters" onSubmit={(e) => { e.preventDefault(); load(); }}>
-        <label className="sr-only" htmlFor="res-search">Search resources</label>
-        <input id="res-search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search: food, tutor, clinic..." />
-        <label className="sr-only" htmlFor="res-cat">Category</label>
-        <select id="res-cat" value={category} onChange={(e) => { setCategory(e.target.value); load(search, e.target.value); }}>
-          <option value="">All categories</option>
-          {categories.map((c) => <option key={c}>{c}</option>)}
-        </select>
-        <button type="submit">Search</button>
-      </form>
+      <p>
+        Explore how data centers may affect communities in Loudoun County,
+        Virginia. Choose an issue to prepare a research question for Impact Explorer.
+      </p>
 
-      {showForm && (
-        <form className="add-form" onSubmit={save}>
-          <input value={form.name} onChange={update('name')} placeholder="Name *" aria-label="Name" />
-          <select value={form.category} onChange={update('category')} aria-label="Category">
-            {categories.map((c) => <option key={c}>{c}</option>)}
-          </select>
-          <textarea value={form.description} onChange={update('description')} placeholder="What do they offer? *" aria-label="Description" rows={2} />
-          <input value={form.neighborhood} onChange={update('neighborhood')} placeholder="Neighborhood" aria-label="Neighborhood" />
-          <input value={form.hours} onChange={update('hours')} placeholder="Hours" aria-label="Hours" />
-          <input value={form.phone} onChange={update('phone')} placeholder="Phone" aria-label="Phone" />
-          <input value={form.website} onChange={update('website')} placeholder="https://..." aria-label="Website" />
-          <button type="submit">Save</button>
-        </form>
-      )}
-
-      {message && <p className={`notice ${message.kind}`} role="status">{message.text}</p>}
-
-      <p className="result-count">{resources.length} result{resources.length === 1 ? '' : 's'}</p>
-      <ul className="resource-list">
-        {resources.map((r) => (
-          <li key={r.id}>
-            <span className="tag">{r.category}</span>
-            <h3>{r.name}</h3>
-            <p>{r.description}</p>
-            <small>{[r.neighborhood, r.hours, r.phone].filter(Boolean).join(' · ')}</small>
-          </li>
+      <div className="issue-options" role="group" aria-label="Environmental issues">
+        {ISSUES.map((issue) => (
+          <button
+            key={issue.id}
+            type="button"
+            className={`issue-option ${selectedIssue === issue.id ? 'selected' : ''}`}
+            aria-pressed={selectedIssue === issue.id}
+            onClick={() => handleSelect(issue.id)}
+          >
+            <strong>{issue.title}</strong>
+            <span>{issue.description}</span>
+          </button>
         ))}
-      </ul>
+      </div>
+
+      {selectedIssue && (
+        <p className="notice ok" role="status">
+          Question prepared. Review or edit it in Ask Impact Explorer, then click Send.
+        </p>
+      )}
     </section>
   );
 }
