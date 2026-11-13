@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { api } from '../api.js';
 import { project } from '../../shared/project.config.js';
+import ReactMarkdown from 'react-markdown';
 
 // Chat with your agent. Pick a skill, or leave it on Auto and let intent-router choose.
 export default function ChatPanel({ skills, suggestedQuestion }) {
@@ -59,8 +60,13 @@ export default function ChatPanel({ skills, suggestedQuestion }) {
         )}
         {messages.map((m, i) => (
           <li key={i} className={`bubble ${m.role}`}>
-            {/* React escapes text automatically, so AI output can't inject HTML */}
-            <p><RichText text={m.text} /></p>
+            {m.role === 'assistant' ? (
+              <div className="markdown-content">
+                <ReactMarkdown>{m.text}</ReactMarkdown>
+                </div>
+                ) : (
+                <p>{m.text}</p>
+                )}
             {m.meta && (
               <small>
                 skill: <b>{m.meta.skill}</b> · picked by {m.meta.routedBy}
@@ -89,10 +95,10 @@ export default function ChatPanel({ skills, suggestedQuestion }) {
   );
 }
 
-// Shows **bold** from the AI as real bold text. React still escapes everything,
-// so this is safe: we never use dangerouslySetInnerHTML.
-function RichText({ text }) {
-  return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
-    part.startsWith('**') && part.endsWith('**') ? <strong key={i}>{part.slice(2, -2)}</strong> : part,
-  );
-}
+// // Shows **bold** from the AI as real bold text. React still escapes everything,
+// // so this is safe: we never use dangerouslySetInnerHTML.
+// function RichText({ text }) {
+//   return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+//     part.startsWith('**') && part.endsWith('**') ? <strong key={i}>{part.slice(2, -2)}</strong> : part,
+//   );
+// }

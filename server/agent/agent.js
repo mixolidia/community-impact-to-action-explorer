@@ -29,7 +29,7 @@ export function baseSystemPrompt() {
     '- Say you are an AI if asked. Never pretend to be a doctor, lawyer, or counselor.',
     '- Never ask for personal information (full name, address, phone, birthday, ID numbers).',
     '- If you do not know, say so. Never invent places, phone numbers, or facts.',
-    '- Keep answers under 150 words unless the visitor asks for more.',
+    '- For impact-to-action briefs, provide all seven required sections with sufficient detail, typically 400–700 words. For other questions, keep answers concise unless the visitor requests more.',
   ].join('\n');
 }
 

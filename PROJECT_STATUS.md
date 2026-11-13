@@ -1,6 +1,6 @@
 # Project Status: Community Insight to Impact Explorer
 
-**Last updated:** November 13, 2026  
+**Last updated:** November 13, 2026, approximately 6:15 PM ET  
 **Project:** CodeSquad AI Community Sprint  
 **Team:** Insight to Impact (i2i)  
 **Developer:** Solo project  
@@ -95,6 +95,9 @@ The application was developed locally on an Intel MacBook Pro.
 - Confirmed Gemini generates environmental impact-to-action briefs.
 - Updated agent and skill instructions to avoid repetitive greetings and introductions.
 - Confirmed responses now begin directly with the issue overview during browser testing.
+- Updated impact-to-action skill guidance to request verified named leadership and public contact details when available; this remains incomplete because verified contact records are not supplied to the agent.
+- Updated the base agent prompt to request complete seven-section briefs, typically 400–700 words.
+- Increased `maxOutputTokens` from 600 to 4096 in `server/config.js`. Browser testing then returned a complete water-use brief with all seven sections, Sources, and a disclaimer. The cutoff appears resolved for that case.
 
 ### Frontend
 
@@ -105,10 +108,13 @@ The application was developed locally on an Intel MacBook Pro.
 - Selecting an issue does not automatically submit a question.
 - Visitors must click Send to request an AI response.
 - Tested the issue selector and live AI responses in the browser.
+- Installed `react-markdown` and updated `src/components/ChatPanel.jsx` to render assistant Markdown, including lists and clickable links. Browser output was reviewed.
 
 ### Testing
 
-- `npm test` previously passed all 15 tests after environmental routing updates.
+- `npm test` passed all 15 tests after the Markdown and agent changes earlier on November 13.
+- `npm run build` completed successfully earlier on November 13.
+- Tests/build have **not yet been confirmed after the latest output-token configuration change**.
 - Browser testing confirmed live Gemini integration and issue selection.
 - The most recent greeting changes were tested manually and worked.
 - Run the automated test suite again after subsequent changes.
@@ -133,24 +139,13 @@ Required improvements:
 
 **Important:** The current application should not be represented as providing fully verified or source-grounded research.
 
-### Priority 2: Improve response presentation
+### Priority 2: Finish response presentation and contact details
 
-The chat currently displays Markdown formatting imperfectly.
+**Markdown rendering implemented:** `react-markdown` was installed and assistant messages now render Markdown. Confirm the result across all issue categories and screen sizes.
 
-Observed issues:
+**Response cutoff appears fixed:** `server/config.js` now specifies `maxOutputTokens: 4096` instead of `600`. The next water-use test returned sections 1–7 and the disclaimer. Verify other issue categories before marking this fully regression-tested.
 
-- Markdown headings and numbered sections are not consistently rendered.
-- Bullet points and emphasis may display as literal formatting characters.
-- Source hyperlinks are not presented cleanly.
-- Long responses may be truncated.
-
-Possible improvements:
-
-- Add a safe Markdown renderer for AI responses.
-- Make source links clickable and readable.
-- Improve spacing and readability of structured briefs.
-- Review model output-token limits and response-length instructions.
-- Test full responses for all four issue categories.
+**Named contacts are a deferred improvement:** The `impact-to-action-brief` skill asks for verified leadership names, titles, official email addresses, phone numbers, and direct contact links, but the agent still mostly supplies agency directory links. When asked directly for leadership names, the intent router selects `resource-finder`, whose instructions/data also need improvement. Provide a verified curated contact directory to the relevant skill(s), including `resource-finder`; do not rely on the model to recall current officeholders. Previously discussed contact names and numbers are **unverified leads, not approved application data**.
 
 ### Priority 3: Finish project-specific interface cleanup
 
@@ -166,9 +161,9 @@ Review:
 
 Remove or adapt unrelated starter content.
 
-### Priority 4: Deployment and final presentation
+### Priority 4: Deployment and final presentation (urgent: November 14)
 
-- Choose a hosting platform.
+- Choose a hosting platform compatible with the existing Node/Express server and Vite build; prioritize fastest reliable public deployment.
 - Configure environment variables securely on the hosting platform.
 - Deploy the application.
 - Verify the public URL works.
@@ -180,7 +175,10 @@ Remove or adapt unrelated starter content.
 
 - Review reported npm dependency vulnerabilities, including Zod-related advisories.
 - Do not run `npm audit fix --force` without reviewing breaking changes.
-- Decide whether persistent storage is necessary. It is not required for the current issue-selector-to-AI-brief workflow.
+- Decide whether persistent storage is necessary. It is not required for the current issue-selector-to-AI-brief workflow; do not add PostgreSQL solely to satisfy the starter checklist before deployment.
+- Create a first Gherkin ticket under `tickets/` following `docs/SPEC-DRIVEN-DEVELOPMENT.md` when practical.
+- Replace sample resources with real, verified sources.
+- Update or remove the on-page **Start here** checklist. Its first two steps were reported done; remaining steps are PostgreSQL setup, a Gherkin ticket, and verified resources. The checklist is starter-template guidance, not necessarily mandatory MVP architecture.
 - Consider reducing unrelated starter functionality after the core MVP is stable.
 
 ## 5. Environment and local development
@@ -239,42 +237,25 @@ git status
 npm run build
 ```
 
-The production build still needs verification.
+The production build passed earlier on November 13 after the Markdown update; rerun after the latest edits.
 
-## 6. Git history
+## 6. Git status and version-control caution
 
-Most recent commits as of November 13, 2026:
+Previously observed repository commit: `9884358` on `main` with a clean working tree **before** the November 13 changes. Earlier history is recorded in Git.
 
-| Commit | Description |
-|---|---|
-| `3dc5542` | Improve agent response openings and brief structure |
-| `d847063` | Connect environmental issue selector to editable chat questions |
-| `c78459e` | Replace community resource board with environmental issue selector |
-| `6ae1d4f` | Add environmental issue questions and selection handler |
-| `41f457e` | Update agent tests for environmental impact research |
-| `3e90562` | Update skill routing for environmental impact research |
-| `5e81f29` | Configure I2I project identity and goals |
-| `b49cf3b` | Add impact-to-action brief skill |
+During November 13, the following files were edited locally: `src/components/ChatPanel.jsx`, `package.json`, lockfile (after `npm install react-markdown`), `skills/impact-to-action-brief/SKILL.md`, `server/agent/agent.js`, and `server/config.js`. **Their commit/push status has not been confirmed.** A `git add server/config.js && git commit ... && git push` command was suggested but no execution output was provided. Check `git status --short --branch` and `git log -1 --oneline` before committing; do not assume changes are pushed.
 
-At the time this document was prepared, the six newest commits were local and had not yet been pushed to GitHub.
+## 7. Next session: prioritized handoff checklist
 
-The working tree was clean before creating this document.
+**Deadline:** Final CodeSquad presentation is Saturday, November 14, 2026. Work in focused ~30-minute sessions and provide **one step at a time**.
 
-## 7. Recommended next development session
+1. **Save and verify current changes:** inspect Git status, run `npm test` and `npm run build`, then commit/push tested changes without including `.env`. Do not assume the previously suggested command ran.
+2. **Deploy the existing application:** choose a compatible host, configure `GEMINI_API_KEY` and other required environment variables securely, use the existing production build/start commands, and obtain a public URL. Verify the public app and a live seven-section water-use response. Deployment is the top delivery priority.
+3. **Improve evidence quality:** replace in-memory/sample resources with a small set of verified Loudoun County sources for water, noise, and air quality. Supply source content directly to the agent, verify links, and remove unsupported claims. Do not claim the present brief is fully source-grounded.
+4. **Finish demo readiness:** remove or revise leftover starter UI (especially **Start here**); test all four issue options and mobile readability; prepare and record a short demonstration with transparent limitations.
+5. **Defer until the core works:** curate and verify named leaders, public emails, phone numbers, and direct official contacts for both `impact-to-action-brief` and `resource-finder`; add the Gherkin ticket; assess whether PostgreSQL is actually needed; review dependency vulnerability warnings.
 
-**Immediate objective:** Move from a working local prototype toward a credible, publicly accessible MVP for the November 14 presentation.
-
-Suggested sequence:
-
-1. Confirm repository status and run `npm test` and `npm run build`.
-2. Improve Markdown rendering and response readability.
-3. Integrate a small, verified set of direct sources for the three issue categories.
-4. Test evidence-grounded answers and explicitly handle missing evidence.
-5. Remove or revise remaining starter content.
-6. Deploy the application and verify it publicly.
-7. Rehearse the final demonstration.
-
-Given the deadline, prioritize a working deployed application and an accurate demonstration over additional features.
+**Latest browser test:** After increasing the output limit, a water-use prompt returned all seven sections, mitigation trade-offs, agency contact links, accountability questions, information gaps, sources, and disclaimer. It still included assertions not directly backed by the linked sources. The cutoff fix is promising but not a substitute for evidence verification.
 
 ## 8. Working preferences and collaboration
 
