@@ -73,11 +73,73 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(29,107,82,.2
 .bubble.user { align-self: flex-end; background: var(--green); color: #fff; border-bottom-right-radius: 4px; }
 .bubble.assistant { align-self: flex-start; background: #f1efe7; border-bottom-left-radius: 4px; }
 .bubble.thinking { color: var(--muted); font-style: italic; }
-.chat-form { display: flex; gap: 10px; margin-top: 14px; }
-.chat-form input { flex: 1; }
+.chat-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  align-items: flex-end;
+}
+
+.chat-form textarea {
+  flex: 1;
+  min-width: 0;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.chat-form button {
+  flex-shrink: 0;
+}
 .error { color: var(--danger); font-weight: 600; margin: 10px 0 0; }
 
 /* ---------- Resources ---------- */
+/* ---------- Environmental issue selector ---------- */
+.issue-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.issue-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 14px;
+  background: #f6f9f7;
+  color: var(--ink);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  text-align: left;
+  font-weight: 400;
+}
+
+.issue-option strong {
+  font-size: 15px;
+  color: var(--green-dark);
+}
+
+.issue-option span {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.issue-option:hover {
+  background: #e6f2ec;
+  border-color: var(--green);
+}
+
+.issue-option.selected {
+  background: #e6f2ec;
+  border-color: var(--green);
+}
+
+.issue-option:focus-visible {
+  outline: 3px solid var(--sun);
+  outline-offset: 2px;
+}
 .filters { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; }
 .add-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; padding: 12px; background: #f6f9f7; border-radius: 10px; }
 .add-form textarea, .add-form button { grid-column: 1 / -1; }
@@ -109,4 +171,5 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(29,107,82,.2
   .chat { min-height: 460px; }
   .filters { grid-template-columns: 1fr; }
   .add-form { grid-template-columns: 1fr; }
+  .issue-options { grid-template-columns: 1fr; }
 }

@@ -36,11 +36,11 @@ export default function App() {
       <ProjectHeader health={health} />
       <main className="layout">
         <StartHere health={health} />
+        <ResourceBoard onSelectIssue={selectIssue} />
         <ChatPanel
           skills={skills}
           suggestedQuestion={suggestedQuestion}
         />
-        <ResourceBoard onSelectIssue={selectIssue} />
         <SkillsPanel skills={skills} />
       </main>
       <footer className="footer">

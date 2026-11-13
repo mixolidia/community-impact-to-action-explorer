@@ -1,15 +1,20 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api } from '../api.js';
 import { project } from '../../shared/project.config.js';
 
 // Chat with your agent. Pick a skill, or leave it on Auto and let intent-router choose.
-export default function ChatPanel({ skills }) {
+export default function ChatPanel({ skills, suggestedQuestion }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [skill, setSkill] = useState('auto');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const logRef = useRef(null);
+  useEffect(() => {
+    if (suggestedQuestion) {
+      setInput(suggestedQuestion);
+    }
+  }, [suggestedQuestion]);
 
   const choosable = skills.filter((s) => !['safety-guardrail', 'intent-router'].includes(s.name));
 
@@ -50,7 +55,7 @@ export default function ChatPanel({ skills }) {
 
       <ul className="chat-log" ref={logRef} aria-live="polite">
         {messages.length === 0 && (
-          <li className="empty">Try: "Where can my kids get homework help?" or "Explain this notice in plain words."</li>
+          <li className="empty"> Select an environmental issue to prepare a question, or ask your own question about data centers in Loudoun County.</li>
         )}
         {messages.map((m, i) => (
           <li key={i} className={`bubble ${m.role}`}>
@@ -69,13 +74,13 @@ export default function ChatPanel({ skills }) {
 
       <form className="chat-form" onSubmit={send}>
         <label htmlFor="chat-input" className="sr-only">Your question</label>
-        <input
+        <textarea
           id="chat-input"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask about food, health, youth programs..."
+          placeholder="Ask about water use, noise, or air quality..."
           maxLength={2000}
-          autoComplete="off"
+          rows={4}
         />
         <button type="submit" disabled={busy}>Send</button>
       </form>
