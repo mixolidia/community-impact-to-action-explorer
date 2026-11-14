@@ -19,20 +19,21 @@ export default function ProjectHeader({ health }) {
           <p><Field value={project.problemStatement} /></p>
           <p className="for"><strong>For:</strong> <Field value={project.targetUser} /></p>
         </div>
-        <div className="pills" aria-label="Setup status">
-          <StatusPill label="AI" ok={health?.ai === 'live'} good="Gemini live" bad="Mock mode" loading={!health} />
-          <StatusPill label="Database" ok={health?.database === 'postgres'} good="Postgres" bad="Sample data (memory)" loading={!health} />
+        <div className="pills" aria-label="AI status">
+          <StatusPill health={health} />
         </div>
       </div>
     </header>
   );
 }
 
-function StatusPill({ label, ok, good, bad, loading }) {
-  const state = loading ? 'loading' : ok ? 'ok' : 'warn';
+function StatusPill({ health }) {
+  const live = health?.ai === 'live';
+  const state = !health ? 'loading' : live ? 'ok' : 'warn';
+  const status = !health ? 'checking…' : health.ok === false ? 'unavailable' : live ? 'Gemini live' : 'Mock mode';
   return (
     <span className={`pill ${state}`}>
-      <span className="dot" aria-hidden="true" /> {label}: {loading ? 'checking...' : ok ? good : bad}
+      <span className="dot" aria-hidden="true" /> AI: {status}
     </span>
   );
 }

@@ -2,10 +2,11 @@
 
 **CodeSquad AI Community Sprint.** A ready-to-go starter for your community project:
 **React** front end, **Node/Express** back end, **Replit PostgreSQL** database, and an AI agent
-powered by **Google Gemini** through **LangChain**, with **6 agent skills**, **zod** validation,
+powered by **Google Gemini** through **LangChain**, with agent skills, **zod** validation,
 and a full **spec-driven development** workflow with Gherkin tickets.
 
-It runs on day one with no key and no database (sample data + mock AI), so you can explore first.
+The [public demo](https://community-impact-to-action-explorer.onrender.com/) runs on Render.
+For local development, the app also runs with an in-memory directory and mock AI.
 
 ---
 
@@ -84,30 +85,24 @@ It runs on day one with no key and no database (sample data + mock AI), so you c
 ### 3. Create the database (already configured, just switch it on)
 1. In Replit, open **Tools > Database** and create a **PostgreSQL** database.
 2. Replit automatically adds a `DATABASE_URL` secret. That's all the setup there is.
-3. When the server starts, it creates the tables in `server/db/schema.sql` and adds
-   **30 sample community resources** from `server/db/seed-data.js`.
+3. When the server starts, it creates the tables in `server/db/schema.sql` and seeds an empty directory with Loudoun County research references.
 
-No database yet? The app still runs with the sample data in memory. Changes just disappear on restart.
+The brief workflow runs without PostgreSQL. Changes to the in-memory directory disappear on restart.
 
 ### 4. Run it
 Click **Run**. The first run installs packages (about a minute). Then open the preview.
 
-Check the two pills at the top of the page:
+Check the AI status at the top of the page:
 
 | Pill | Means |
 |---|---|
-| **AI: Gemini live** | Your key works. |
+| **AI: Gemini live** | Gemini is configured. Submit a brief to verify the connection. |
 | **AI: Mock mode** | No key found. Check the Secret name, then restart. |
-| **Database: Postgres** | Connected to your Replit database. |
-| **Database: Sample data (memory)** | No `DATABASE_URL` yet. Do step 3. |
-
-The **Start here** checklist on the page ticks itself off as your team finishes setup.
 
 ### 5. Make it yours
 1. Fill in **Our team** above and `shared/project.config.js`.
 2. Fill in `SPEC.md` with your team.
 3. Read [`docs/SPEC-DRIVEN-DEVELOPMENT.md`](docs/SPEC-DRIVEN-DEVELOPMENT.md) and write your first ticket in `tickets/`.
-4. Replace the sample resources with real, verified ones for your community.
 
 ## Run it on your own computer (optional)
 
@@ -115,14 +110,14 @@ The **Start here** checklist on the page ticks itself off as your team finishes 
 npm install
 cp .env.example .env    # then paste your GEMINI_API_KEY (and DATABASE_URL if you have Postgres)
 npm run dev             # http://localhost:3000
-npm test                # 15 tests, no key or database needed
+npm test                # no key or database needed
 ```
 
 You need Node.js 20 or newer.
 
 ---
 
-## The 6 agent skills
+## Agent skills
 
 A **skill** is a playbook the agent follows for one kind of request. Each one is a folder in
 `skills/` with a `SKILL.md` (instructions) and sometimes a `tool.js` (real code). The format is the
@@ -133,6 +128,7 @@ open [Agent Skills](https://agentskills.io/specification) standard, so Replit Ag
 | `safety-guardrail` | Runs first on EVERY message. Removes phone numbers, emails, and ID numbers. Flags crisis, medical, and legal topics. Crisis messages get emergency numbers instead of AI. | Yes, `tool.js` |
 | `intent-router` | When the skill picker is on **Auto**, reads the message and picks the best skill. Uses LangChain **structured output** checked by **zod**, with keyword rules as a backup. | Uses zod |
 | `resource-finder` | Searches the Postgres `resources` table and answers ONLY from what it finds. No made-up places or phone numbers. | Yes, `tool.js` |
+| `impact-to-action-brief` | Uses curated Loudoun County evidence to draft a brief on water use, noise, air quality, or all three. | Yes, `tool.js` |
 | `plain-language-explainer` | Rewrites confusing letters, forms, and notices at a 6th-grade reading level. | |
 | `translator` | Translates while keeping names, numbers, and dates exactly the same. | |
 | `action-plan-builder` | Turns "what should I do?" into 3 to 5 numbered steps and what to bring. | |
@@ -163,13 +159,11 @@ answer goes back to React
 ## The database
 
 ### What community resources are for
-Community resources are local programs and services that visitors can search for, such as food assistance, clinics, housing help, tutoring, or legal aid. The directory displays these listings, and the `resource-finder` skill searches the same records to answer questions like "Where can I find a nearby tutor?" The agent is instructed to use only matching database results, so missing or outdated listings can leave someone without a useful referral; invented details are never an acceptable substitute.
+The resource directory starts with six public research references. The `resource-finder` skill searches the directory. Environmental briefs read the curated notes directly from `server/db/loudoun-sources.js` and link to the original publications.
 
-The app's sample listings are fictional examples, not real referrals. Replace them with real services for the community your team serves, and verify contact details and hours with the provider before publishing. Add only information intended for public use, never a visitor's personal information.
+Each listing needs a **name**, one supported **category**, and a clear **description**. The resources API also accepts **neighborhood**, **hours**, **phone**, **website**, **address**, and **languages**. Categories are `Food`, `Health`, `Housing`, `Youth`, `Education`, `Jobs`, `Seniors`, `Legal Aid`, and `Environment`.
 
-Each listing needs a **name**, one supported **category**, and a clear **description** of what the service offers. Add a **neighborhood** when location matters; **hours**, **phone**, **website**, **address**, and **languages** help visitors decide whether a service fits. The app's Add Resource form collects name, category, description, neighborhood, hours, phone, and website; address and languages can also be stored through the API or database. Categories are `Food`, `Health`, `Housing`, `Youth`, `Education`, `Jobs`, `Seniors`, `Legal Aid`, and `Environment`.
-
-You can add a listing with **+ Add one** in the Community resources section. To replace the starter examples, edit `server/db/seed-data.js`; seed data is inserted only when the resources table is empty. For live use, plan who on the team will verify and update listings as providers change their services.
+Seed data is inserted only when the resources table is empty. Add only information intended for public use.
 
 | Table | What's in it |
 |---|---|
@@ -181,8 +175,7 @@ You can add a listing with **+ Add one** in the Community resources section. To 
   (or run `npm run db:setup`). There's a commented example at the bottom of that file.
 - **Write queries** in `server/db/resources.js` (or a new file next to it). Always use
   `$1, $2` placeholders, never string glue. That's what stops SQL injection.
-- **Change the sample data** in `server/db/seed-data.js`. It only loads into an empty table, so to
-  reload it, run `DELETE FROM resources;` in the Database tool, then restart.
+- **Maintain the evidence notes** and original publication links in `server/db/loudoun-sources.js`.
 
 ## API routes
 
@@ -240,7 +233,7 @@ Open a pull request, have a teammate check the scenarios, then merge to `main`.
 ├── index.html                  React page shell
 ├── src/                        React app (dining room)
 │   ├── App.jsx, api.js, styles.css
-│   └── components/             ProjectHeader, StartHere, ChatPanel, ResourceBoard, SkillsPanel
+│   └── components/             ProjectHeader, ChatPanel, ResourceBoard, SkillsPanel
 ├── shared/project.config.js    Your team, problem, and agent persona
 ├── server/
 │   ├── index.js                One server: API + React (Vite in dev, dist/ in production)
@@ -250,7 +243,7 @@ Open a pull request, have a teammate check the scenarios, then merge to `main`.
 │   ├── ai/model.js             LangChain ChatGoogle (Gemini)
 │   ├── agent/                  agent.js (the loop), router.js, skills.js
 │   └── db/                     pool.js, schema.sql, seed-data.js, resources.js, setup.js
-├── skills/                     6 agent skills (SKILL.md + optional tool.js)
+├── skills/                     Agent skills (SKILL.md + optional tool.js)
 ├── SPEC.md                     Your project spec
 ├── docs/SPEC-DRIVEN-DEVELOPMENT.md
 ├── tickets/                    Gherkin tickets (template + examples)
@@ -263,12 +256,12 @@ Open a pull request, have a teammate check the scenarios, then merge to `main`.
 |---|---|
 | `npm run dev` | Start the app with instant reload (what Replit's Run button does) |
 | `npm test` | Run the tests (no key or database needed) |
-| `npm run db:setup` | Create tables and load sample data |
+| `npm run db:setup` | Create tables and seed an empty directory |
 | `npm run build` then `npm start` | Production build (used when you Publish on Replit) |
 
-## Publish on Replit
-Click **Publish**, choose **Autoscale**, and make sure `GEMINI_API_KEY` is in the published
-app's secrets. Replit uses the `[deployment]` settings in `.replit` (build, then start).
+## Deployment
+
+Render can run this repository as a Node web service. Build with `npm ci --include=dev && npm run build` and start with `npm start`. Store `GEMINI_API_KEY` in the service's environment and use `/api/health` for the health check. Replit publishing uses the `[deployment]` settings in `.replit`.
 
 ## Troubleshooting
 
@@ -277,7 +270,6 @@ app's secrets. Replit uses the `[deployment]` settings in `.replit` (build, then
 | Pill says **Mock mode** | The Secret must be named exactly `GEMINI_API_KEY`. Stop and Run again. |
 | "Gemini rejected the key or model" | Copy the key again. Or set `GEMINI_MODEL` to a model listed in AI Studio. |
 | "Too many requests" | Free keys have a rate limit. Wait a minute. |
-| Pill says **Sample data (memory)** | Create a PostgreSQL database in Tools > Database, then restart. |
 | `relation "resources" does not exist` | Run `npm run db:setup`. |
 | `Cannot find package` | Run `npm install`. |
 | Port already in use (local) | Stop the other server, or set `PORT=3001` in `.env`. |
@@ -285,6 +277,5 @@ app's secrets. Replit uses the `[deployment]` settings in `.replit` (build, then
 
 ## Safety rules
 - Keys go in Secrets or `.env`, never in code. `.env` is in `.gitignore`.
-- The sample resources are **made up**. Replace them with verified, real information before you share the app.
 - Free-tier Gemini usage may be used by Google to improve its products. Don't send personal info.
 - Answers come from AI and can be wrong. The app says so, and so should you.

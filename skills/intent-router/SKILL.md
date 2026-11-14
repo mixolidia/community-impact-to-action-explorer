@@ -14,9 +14,10 @@ You read the message and choose which skill should answer.
 3. Pick exactly one skill. Give a one-sentence reason.
 
 ## Rules
+- For data center impacts, evidence, mitigations, or agency responsibilities in Loudoun County, choose `impact-to-action-brief` unless the visitor asks specifically to translate or rewrite text.
 - Looking for a place, program, or service: `resource-finder`.
 - Wants something explained or simplified: `plain-language-explainer`.
 - Asks for another language: `translator`.
 - Asks "what should I do", needs steps or a plan: `action-plan-builder`.
-- Not sure: `resource-finder`.
+- Not sure: `impact-to-action-brief`.
 - Never pick `safety-guardrail` or `intent-router`.

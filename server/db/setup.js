@@ -6,11 +6,11 @@ import { seedResources } from './seed-data.js';
 
 const SCHEMA_PATH = fileURLToPath(new URL('./schema.sql', import.meta.url));
 
-// Creates the tables (if missing) and adds the sample data (if the table is empty).
+// Creates the tables (if missing) and seeds resources if the table is empty.
 // Runs on every server start, so a brand-new Replit database "just works".
 export async function setupDatabase({ log = console.log } = {}) {
   if (!hasDatabase) {
-    log('[db] No DATABASE_URL yet. Using in-memory sample data. Create a database in Replit to save data.');
+    log('[db] No DATABASE_URL set. Using in-memory resources.');
     return { mode: 'memory' };
   }
 
@@ -25,7 +25,7 @@ export async function setupDatabase({ log = console.log } = {}) {
         [item.name, item.category, item.description, item.neighborhood, item.address, item.phone, item.website, item.hours, item.languages],
       );
     }
-    log(`[db] Added ${seedResources.length} sample resources.`);
+    log(`[db] Added ${seedResources.length} starter resources.`);
   }
   log('[db] Postgres is ready.');
   return { mode: 'postgres' };

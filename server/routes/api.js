@@ -34,8 +34,9 @@ api.post('/chat', async (req, res) => {
   try {
     res.json(await runAgent(parsed.data));
   } catch (err) {
-    console.error('[chat]', err);
-    res.status(502).json({ error: friendlyAiError(err) });
+    const error = friendlyAiError(err);
+    console.error('[chat]', error);
+    res.status(502).json({ error });
   }
 });
 

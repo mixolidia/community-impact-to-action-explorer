@@ -29,7 +29,7 @@ export function baseSystemPrompt() {
     '- Say you are an AI if asked. Never pretend to be a doctor, lawyer, or counselor.',
     '- Never ask for personal information (full name, address, phone, birthday, ID numbers).',
     '- If you do not know, say so. Never invent places, phone numbers, or facts.',
-    '- For impact-to-action briefs, provide all seven required sections with sufficient detail, typically 400–700 words. For other questions, keep answers concise unless the visitor requests more.',
+    '- Follow the active skill’s format. Keep other answers concise unless the visitor requests more.',
   ].join('\n');
 }
 
@@ -38,11 +38,11 @@ export async function runAgent({ message, skill: chosen, history = [] }) {
   const mode = aiMode();
 
   // 1. GUARD
-  const guard = skills.get('safety-guardrail').tool.run({ message });
+  const guardrail = skills.get('safety-guardrail').tool;
+  const guard = guardrail.run({ message });
   if (guard.flags.includes('crisis')) {
-    const { CRISIS_REPLY } = skills.get('safety-guardrail').tool;
     await safeLog({ skill: 'safety-guardrail', routedBy: 'guardrail', flags: guard.flags });
-    return { reply: CRISIS_REPLY, skill: 'safety-guardrail', routedBy: 'guardrail', flags: guard.flags, mode, sources: [] };
+    return { reply: guardrail.CRISIS_REPLY, skill: 'safety-guardrail', routedBy: 'guardrail', flags: guard.flags, mode, sources: [] };
   }
   const cleanMessage = guard.redacted;
 
@@ -64,6 +64,7 @@ export async function runAgent({ message, skill: chosen, history = [] }) {
   // 3. TOOL
   let toolResult = null;
   if (skill.tool?.run) toolResult = await skill.tool.run({ message: cleanMessage });
+  let sources = (toolResult?.data ?? []).map(({ id, name, url }) => (url ? { id, name, url } : { id, name }));
 
   // 4. THINK
   let reply;
@@ -74,12 +75,20 @@ export async function runAgent({ message, skill: chosen, history = [] }) {
       .join('\n')
       .trim();
     const model = await getModel();
+    const cleanHistory = history.map(({ role, text }) => {
+      const { redacted } = guardrail.run({ message: text });
+      return role === 'assistant' ? new AIMessage(redacted) : new HumanMessage(redacted);
+    });
     const response = await model.invoke([
       new SystemMessage(system),
-      ...history.map((turn) => (turn.role === 'assistant' ? new AIMessage(turn.text) : new HumanMessage(turn.text))),
+      ...cleanHistory,
       new HumanMessage(cleanMessage),
     ]);
-    reply = textOf(response);
+    reply = textOf(response).trim();
+    if (!reply) throw new Error('Gemini returned an empty reply.');
+    if (skill.name === 'impact-to-action-brief') {
+      ({ reply, sources } = skill.tool.completeBrief(reply, sources));
+    }
   }
 
   // 5. CHECK
@@ -95,7 +104,7 @@ export async function runAgent({ message, skill: chosen, history = [] }) {
     reason: route.reason,
     flags: guard.flags,
     mode,
-    sources: toolResult?.data?.map((r) => ({ id: r.id, name: r.name })) ?? [],
+    sources,
   };
 }
 
@@ -108,7 +117,7 @@ function textOf(response) {
 function mockReply(skillName, toolResult) {
   const intro = `[Mock mode: add GEMINI_API_KEY for real answers] The ${skillName} skill would answer this.`;
   if (skillName === 'resource-finder' && toolResult?.data?.length) {
-    const top = toolResult.data.slice(0, 2).map((r) => `- ${r.name}: ${r.description} ${r.hours}. ${r.phone}`);
+    const top = toolResult.data.slice(0, 2).map((r) => `- ${r.name}: ${[r.description, r.hours, r.phone].filter(Boolean).join(' ')}`);
     return `${intro}\nTop database matches:\n${top.join('\n')}`;
   }
   return intro;

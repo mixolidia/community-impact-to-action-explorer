@@ -8,6 +8,7 @@ delete process.env.DATABASE_URL;
 const { runAgent } = await import('../server/agent/agent.js');
 const { routeWithRules } = await import('../server/agent/router.js');
 const { loadSkills } = await import('../server/agent/skills.js');
+const { completeBrief } = await import('../skills/impact-to-action-brief/tool.js');
 
 test('keyword routing selects appropriate skills', async () => {
   const skills = await loadSkills();
@@ -40,6 +41,17 @@ test('environmental research uses the impact-to-action skill', async () => {
 
   assert.equal(out.skill, 'impact-to-action-brief');
   assert.equal(out.mode, 'mock');
+  assert.deepEqual(out.sources.map(({ id }) => id), ['W1', 'W2', 'N1', 'N2', 'A1', 'A2']);
+});
+
+test('impact briefs link the curated sources used in the response', async () => {
+  const { sources } = await runAgent({ message: 'What is known about data center noise?' });
+  const draft = '### 1. Issue overview\nFindings [N1] and [N2].\n\n**7. Sources**\nhttps://example.org/unverified';
+  const brief = completeBrief(draft, sources);
+  assert.deepEqual(brief.sources.map(({ id }) => id), ['N1', 'N2']);
+  assert.match(brief.reply, /### 7\. Sources/);
+  assert.match(brief.reply, /\[N1\]: https:\/\/www\.loudoun\.gov\//);
+  assert.doesNotMatch(brief.reply, /example\.org/);
 });
 
 test('a chosen skill wins over the router', async () => {

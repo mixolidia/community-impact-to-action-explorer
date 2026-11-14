@@ -44,8 +44,7 @@ button, input, select, textarea { font: inherit; }
 .card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
 .card-head h2 { font-size: 20px; }
 .count { font-size: 13px; font-weight: 700; color: var(--green); background: #e6f2ec; padding: 3px 10px; border-radius: 999px; }
-.start-here { grid-column: 1; }
-.chat { grid-column: 2; grid-row: span 2; display: flex; flex-direction: column; min-height: 560px; }
+.chat { grid-column: 2; display: flex; flex-direction: column; min-height: 560px; }
 .resources { grid-column: 1; }
 .skills { grid-column: 1 / -1; }
 
@@ -56,19 +55,15 @@ button.ghost { background: transparent; color: var(--green); border: 1px solid v
 input, select, textarea { border: 1px solid #cfd5d2; border-radius: 10px; padding: 10px 12px; background: #fff; min-width: 0; }
 input:focus, select:focus, textarea:focus { outline: 3px solid rgba(29,107,82,.25); border-color: var(--green); }
 
-/* ---------- Start here ---------- */
-.checklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-.checklist li { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; }
-.checklist .box { flex: 0 0 22px; height: 22px; border: 2px solid #b9c4bf; border-radius: 6px; display: grid; place-items: center; font-size: 14px; color: #fff; }
-.checklist li.done { color: var(--muted); text-decoration: line-through; }
-.checklist li.done .box { background: var(--green); border-color: var(--green); }
-
 /* ---------- Chat ---------- */
 .skill-pick { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--muted); }
-.chat-log { list-style: none; margin: 0; padding: 4px; flex: 1; overflow-y: auto; max-height: 520px; display: flex; flex-direction: column; gap: 10px; }
+.chat-log { position: relative; list-style: none; margin: 0; padding: 4px; flex: 1; overflow-y: auto; max-height: 520px; display: flex; flex-direction: column; gap: 10px; }
 .chat-log .empty { color: var(--muted); font-size: 15px; padding: 8px 2px; }
-.bubble { max-width: 88%; padding: 10px 14px; border-radius: 14px; }
-.bubble p { margin: 0; white-space: pre-wrap; }
+.bubble { max-width: 88%; padding: 10px 14px; border-radius: 14px; overflow-wrap: anywhere; }
+.bubble.user p { margin: 0; white-space: pre-wrap; }
+.markdown-content > :first-child { margin-top: 0; }
+.markdown-content > :last-child { margin-bottom: 0; }
+.markdown-content h3 { margin-top: 1em; }
 .bubble small { display: block; margin-top: 6px; font-size: 12px; color: var(--muted); }
 .bubble.user { align-self: flex-end; background: var(--green); color: #fff; border-bottom-right-radius: 4px; }
 .bubble.assistant { align-self: flex-start; background: #f1efe7; border-bottom-left-radius: 4px; }
@@ -167,7 +162,7 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(29,107,82,.2
 /* ---------- Phones ---------- */
 @media (max-width: 860px) {
   .layout { grid-template-columns: 1fr; }
-  .start-here, .chat, .resources, .skills { grid-column: 1; grid-row: auto; }
+  .chat, .resources, .skills { grid-column: 1; }
   .chat { min-height: 460px; }
   .filters { grid-template-columns: 1fr; }
   .add-form { grid-template-columns: 1fr; }

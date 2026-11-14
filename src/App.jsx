@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from './api.js';
 import ProjectHeader from './components/ProjectHeader.jsx';
-import StartHere from './components/StartHere.jsx';
 import ChatPanel from './components/ChatPanel.jsx';
 import ResourceBoard from './components/ResourceBoard.jsx';
 import SkillsPanel from './components/SkillsPanel.jsx';
@@ -20,7 +19,7 @@ const ISSUE_QUESTIONS = {
 export default function App() {
   const [health, setHealth] = useState(null);
   const [skills, setSkills] = useState([]);
-  const [suggestedQuestion, setSuggestedQuestion] = useState('');
+  const [question, setQuestion] = useState('');
 
   useEffect(() => {
     api.health().then(setHealth).catch(() => setHealth({ ok: false }));
@@ -28,18 +27,18 @@ export default function App() {
   }, []);
 
   function selectIssue(issue) {
-    setSuggestedQuestion(ISSUE_QUESTIONS[issue] ?? '');
+    setQuestion(ISSUE_QUESTIONS[issue]);
   }
 
   return (
     <>
       <ProjectHeader health={health} />
       <main className="layout">
-        <StartHere health={health} />
         <ResourceBoard onSelectIssue={selectIssue} />
         <ChatPanel
           skills={skills}
-          suggestedQuestion={suggestedQuestion}
+          question={question}
+          onQuestionChange={setQuestion}
         />
         <SkillsPanel skills={skills} />
       </main>

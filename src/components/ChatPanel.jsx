@@ -3,28 +3,28 @@ import { api } from '../api.js';
 import { project } from '../../shared/project.config.js';
 import ReactMarkdown from 'react-markdown';
 
-// Chat with your agent. Pick a skill, or leave it on Auto and let intent-router choose.
-export default function ChatPanel({ skills, suggestedQuestion }) {
+export default function ChatPanel({ skills, question, onQuestionChange }) {
   const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
   const [skill, setSkill] = useState('auto');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const logRef = useRef(null);
+  const latestMessageRef = useRef(null);
+
   useEffect(() => {
-    if (suggestedQuestion) {
-      setInput(suggestedQuestion);
-    }
-  }, [suggestedQuestion]);
+    const log = logRef.current;
+    if (busy) log.scrollTop = log.scrollHeight;
+    else if (latestMessageRef.current) log.scrollTop = latestMessageRef.current.offsetTop;
+  }, [messages, busy]);
 
   const choosable = skills.filter((s) => !['safety-guardrail', 'intent-router'].includes(s.name));
 
   async function send(event) {
     event.preventDefault();
-    const text = input.trim();
+    const text = question.trim();
     if (!text || busy) return;
     setError('');
-    setInput('');
+    onQuestionChange('');
     const history = messages.slice(-6).map((m) => ({ role: m.role, text: m.text.slice(0, 4000) }));
     setMessages((prev) => [...prev, { role: 'user', text }]);
     setBusy(true);
@@ -33,9 +33,10 @@ export default function ChatPanel({ skills, suggestedQuestion }) {
       setMessages((prev) => [...prev, { role: 'assistant', text: data.reply, meta: data }]);
     } catch (err) {
       setError(err.message);
+      setMessages((prev) => prev.slice(0, -1));
+      onQuestionChange((draft) => draft || text);
     } finally {
       setBusy(false);
-      requestAnimationFrame(() => logRef.current?.scrollTo({ top: logRef.current.scrollHeight }));
     }
   }
 
@@ -59,14 +60,22 @@ export default function ChatPanel({ skills, suggestedQuestion }) {
           <li className="empty"> Select an environmental issue to prepare a question, or ask your own question about data centers in Loudoun County.</li>
         )}
         {messages.map((m, i) => (
-          <li key={i} className={`bubble ${m.role}`}>
+          <li key={i} className={`bubble ${m.role}`} ref={i === messages.length - 1 ? latestMessageRef : null}>
             {m.role === 'assistant' ? (
               <div className="markdown-content">
-                <ReactMarkdown>{m.text}</ReactMarkdown>
-                </div>
-                ) : (
-                <p>{m.text}</p>
-                )}
+                <ReactMarkdown
+                  components={m.meta.skill === 'impact-to-action-brief' ? {
+                    a: ({ href, children }) => m.meta.sources?.some((source) => source.url === href)
+                      ? <a href={href} target="_blank" rel="noreferrer">{children}</a>
+                      : <>{children}</>,
+                  } : undefined}
+                >
+                  {m.text}
+                </ReactMarkdown>
+              </div>
+            ) : (
+              <p>{m.text}</p>
+            )}
             {m.meta && (
               <small>
                 skill: <b>{m.meta.skill}</b> · picked by {m.meta.routedBy}
@@ -82,8 +91,8 @@ export default function ChatPanel({ skills, suggestedQuestion }) {
         <label htmlFor="chat-input" className="sr-only">Your question</label>
         <textarea
           id="chat-input"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
+          value={question}
+          onChange={(e) => onQuestionChange(e.target.value)}
           placeholder="Ask about water use, noise, or air quality..."
           maxLength={2000}
           rows={4}
@@ -94,11 +103,3 @@ export default function ChatPanel({ skills, suggestedQuestion }) {
     </section>
   );
 }
-
-// // Shows **bold** from the AI as real bold text. React still escapes everything,
-// // so this is safe: we never use dangerouslySetInnerHTML.
-// function RichText({ text }) {
-//   return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
-//     part.startsWith('**') && part.endsWith('**') ? <strong key={i}>{part.slice(2, -2)}</strong> : part,
-//   );
-// }
