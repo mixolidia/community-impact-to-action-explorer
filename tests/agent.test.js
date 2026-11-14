@@ -9,7 +9,7 @@ delete process.env.DATABASE_URL;
 const { runAgent } = await import('../server/agent/agent.js');
 const { routeWithRules } = await import('../server/agent/router.js');
 const { loadSkills } = await import('../server/agent/skills.js');
-const { completeBrief } = await import('../skills/impact-to-action-brief/tool.js');
+const { completeBrief, completeFollowUp } = await import('../skills/impact-to-action-brief/tool.js');
 
 test('keyword routing selects appropriate skills', async () => {
   const skills = await loadSkills();
@@ -93,10 +93,23 @@ test('the default issue brief supplies reviewed mitigations and links grouped ci
 
 test('follow-ups keep clickable sources and use a fallback for uncited answers', async () => {
   const { sources } = await runAgent({ message: 'What is known about data center water use?' });
-  const answer = completeBrief('Reclaimed water can reduce drinking water demand [W1].', sources, { followUp: true });
+  const answer = completeFollowUp({
+    insufficientEvidence: false,
+    statements: [
+      { text: 'Reclaimed water can reduce drinking water demand.', sourceIds: ['W1'] },
+      { text: 'Evaporation can reduce how much water flows back to the river.', sourceIds: ['W2'] },
+    ],
+  }, sources);
   assert.match(answer.reply, /### Sources/);
-  assert.deepEqual(answer.sources.map(({ id }) => id), ['W1']);
-  const unsupported = completeBrief('The data center used 90 gallons.', sources, { followUp: true });
+  assert.match(answer.reply, /drinking water demand\. \[W1\]/);
+  assert.match(answer.reply, /back to the river\. \[W2\]/);
+  assert.deepEqual(answer.sources.map(({ id }) => id), ['W1', 'W2']);
+  const unknown = completeFollowUp({ insufficientEvidence: true, statements: [] }, sources);
+  assert.match(unknown.reply, /sources don’t establish the specific detail/);
+  const unsupported = completeFollowUp({
+    insufficientEvidence: false,
+    statements: [{ text: 'The data center used 90 gallons.', sourceIds: [] }],
+  }, sources);
   assert.match(unsupported.reply, /couldn’t generate a complete cited answer/);
   assert.doesNotMatch(unsupported.reply, /90 gallons/);
   assert.ok(unsupported.sources.some(({ id }) => id === 'W1'));
