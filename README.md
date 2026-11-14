@@ -13,20 +13,20 @@ It runs on day one with no key and no database (sample data + mock AI), so you c
 
 | | |
 |---|---|
-| **Team name** | TODO |
-| **App name** | TODO |
-| **Problem statement** | TODO: Who is struggling, and how? |
-| **Target user** | TODO: One person, with a name and a situation |
-| **Community** | TODO: City, neighborhood |
-| **Theme** | TODO: Climate / Education Access / Global Health / Clean Water / Child Protection |
-| **How we'll know it works** | TODO: Something measurable |
+| **Team name** | Insight to Impact (i2i) |
+| **App name** | Community Insight to Impact Explorer |
+| **Problem statement** | People researching the environmental and community impacts of data centers struggle to find reliable, accessible information about documented impacts, potential mitigation measures, and who is responsible for addressing them. |
+| **Target user** | Alex Rivera, a Loudoun County resident concerned about nearby data center development who wants to understand environmental impacts and prepare informed questions for local decision-makers.|
+| **Community** | Loudoun County, Virginia, Data Center Alley |
+| **Theme** | 	Climate Action / Environmental Accountability|
+| **How we'll know it works** | A user can select water use, noise, or air quality and receive an understandable AI-generated impact-to-action brief with evidence labels, at least two mitigation options and their trade-offs, relevant decision-makers, accountability questions, information gaps, and source links.|
 
 | Name | Role |
 |---|---|
-| TODO | Product owner (writes tickets) |
-| TODO | Front end (React) |
-| TODO | Back end (API + database) |
-| TODO | AI agent and skills |
+| Mixolidia Gautreaux | Product owner (writes tickets) |
+| Mixolidia Gautreaux | Front end (React) |
+| Mixolidia Gautreaux | Back end (API + database) |
+| Mixolidia Gautreaux | AI agent and skills |
 
 > Put the same info in `shared/project.config.js`. The web page and the AI agent both read it.
 
