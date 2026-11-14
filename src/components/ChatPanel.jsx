@@ -25,7 +25,7 @@ export default function ChatPanel({ skills, suggestedQuestion }) {
     if (!text || busy) return;
     setError('');
     setInput('');
-    const history = messages.slice(-6).map((m) => ({ role: m.role, text: m.text }));
+    const history = messages.slice(-6).map((m) => ({ role: m.role, text: m.text.slice(0, 4000) }));
     setMessages((prev) => [...prev, { role: 'user', text }]);
     setBusy(true);
     try {
