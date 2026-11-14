@@ -1,5 +1,6 @@
 import { SystemMessage, HumanMessage, AIMessage } from '@langchain/core/messages';
 import { aiMode } from '../config.js';
+import { environmentalIssues } from '../../shared/environmental-issues.js';
 import { project } from '../../shared/project.config.js';
 import { logChat } from '../db/resources.js';
 import { getModel } from '../ai/model.js';
@@ -33,7 +34,7 @@ export function baseSystemPrompt() {
   ].join('\n');
 }
 
-export async function runAgent({ message, skill: chosen, history = [] }) {
+export async function runAgent({ message, skill: chosen, issue, previousSkill, history = [] }) {
   const skills = await loadSkills();
   const mode = aiMode();
 
@@ -45,14 +46,27 @@ export async function runAgent({ message, skill: chosen, history = [] }) {
     return { reply: guardrail.CRISIS_REPLY, skill: 'safety-guardrail', routedBy: 'guardrail', flags: guard.flags, mode, sources: [] };
   }
   const cleanMessage = guard.redacted;
+  const issuePrompt = environmentalIssues.find(({ question }) => question === cleanMessage);
+  const previousIssueIndex = history.findLastIndex(({ role, text }) =>
+    role === 'user' && environmentalIssues.some(({ question }) => question === text),
+  );
+  const activeIssue = issuePrompt ?? environmentalIssues.find(({ id, question }) =>
+    issue ? id === issue : question === history[previousIssueIndex]?.text,
+  );
+  const conversation = issuePrompt ? [] : history.slice(Math.max(0, previousIssueIndex));
+  const followUp = conversation.length > 0;
 
   // 2. ROUTE
   let route;
   if (chosen && chosen !== 'auto' && skills.has(chosen)) {
     route = { skill: chosen, reason: 'Chosen by the visitor.', routedBy: 'visitor' };
+  } else if (activeIssue || (followUp && previousSkill === 'impact-to-action-brief')) {
+    route = { ...routeWithRules(cleanMessage, skills, { continueResearch: true }), routedBy: 'issue-context' };
   } else if (mode === 'live') {
     try {
-      route = { ...(await routeWithAi({ message: cleanMessage, skills, model: await getModel() })), routedBy: 'intent-router' };
+      const previousQuestion = conversation.findLast(({ role }) => role === 'user');
+      const previousTopic = previousQuestion ? guardrail.run({ message: previousQuestion.text }).redacted : '';
+      route = { ...(await routeWithAi({ message: cleanMessage, previousTopic, skills, model: await getModel() })), routedBy: 'intent-router' };
     } catch {
       route = { ...routeWithRules(cleanMessage, skills), routedBy: 'keyword-rules' };
     }
@@ -63,7 +77,7 @@ export async function runAgent({ message, skill: chosen, history = [] }) {
 
   // 3. TOOL
   let toolResult = null;
-  if (skill.tool?.run) toolResult = await skill.tool.run({ message: cleanMessage });
+  if (skill.tool?.run) toolResult = await skill.tool.run({ message: cleanMessage, issue: activeIssue, briefIssue: issuePrompt?.id });
   let sources = (toolResult?.data ?? []).map(({ id, name, url }) => (url ? { id, name, url } : { id, name }));
 
   // 4. THINK
@@ -75,7 +89,7 @@ export async function runAgent({ message, skill: chosen, history = [] }) {
       .join('\n')
       .trim();
     const model = await getModel();
-    const cleanHistory = history.map(({ role, text }) => {
+    const cleanHistory = conversation.map(({ role, text }) => {
       const { redacted } = guardrail.run({ message: text });
       return role === 'assistant' ? new AIMessage(redacted) : new HumanMessage(redacted);
     });
@@ -87,7 +101,7 @@ export async function runAgent({ message, skill: chosen, history = [] }) {
     reply = textOf(response).trim();
     if (!reply) throw new Error('Gemini returned an empty reply.');
     if (skill.name === 'impact-to-action-brief') {
-      ({ reply, sources } = skill.tool.completeBrief(reply, sources));
+      ({ reply, sources } = skill.tool.completeBrief(reply, sources, { followUp, briefIssue: issuePrompt?.id }));
     }
   }
 

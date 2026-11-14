@@ -26,8 +26,7 @@ export async function getModel() {
 export function friendlyAiError(err) {
   const status = err?.status ?? err?.response?.status;
   const text = String(err?.message ?? '');
-  if (status === 429 || /quota|rate/i.test(text)) return 'Too many requests. Free Gemini keys have a rate limit, so wait a minute.';
-  if (status === 400 || status === 401 || status === 403 || /api key/i.test(text)) return 'Gemini rejected the key or model. Check GEMINI_API_KEY and GEMINI_MODEL.';
-  if (status === 404 || /not found/i.test(text)) return 'That Gemini model was not found. Set GEMINI_MODEL to a model listed in Google AI Studio.';
+  if (status === 429 || /quota|rate limit/i.test(text)) return 'Impact Explorer is receiving too many requests. Try again in a minute.';
+  if ([400, 401, 403, 404].includes(status) || /api key|not found/i.test(text)) return 'Impact Explorer cannot reach its AI service right now. You can still read the source links and notes.';
   return 'The AI could not answer right now. Try again in a moment.';
 }

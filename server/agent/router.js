@@ -11,7 +11,7 @@ export function makeRouteSchema(skillNames) {
   });
 }
 
-export async function routeWithAi({ message, skills, model }) {
+export async function routeWithAi({ message, previousTopic, skills, model }) {
   const choices = publicSkills(skills);
   const schema = makeRouteSchema(choices.map((s) => s.name));
   const routerSkill = skills.get('intent-router');
@@ -19,12 +19,14 @@ export async function routeWithAi({ message, skills, model }) {
 
   const result = await model.withStructuredOutput(schema).invoke([
     new SystemMessage(`${routerSkill.body}\n\n## Skills you can choose\n${menu}`),
-    new HumanMessage(message),
+    new HumanMessage(previousTopic ? JSON.stringify({ previousTopic, message }) : message),
   ]);
   return schema.parse(result); // double-check the shape before we trust it
 }
 
 // No AI needed: keyword rules used in mock mode or if AI routing fails.
+const TRANSLATION_REQUEST = /\b(translate|translation|in spanish|in english|en español|in polish|in arabic|in chinese)\b/i;
+
 const RULES = [
   {
     skill: 'impact-to-action-brief',
@@ -32,7 +34,7 @@ const RULES = [
   },
   {
     skill: 'translator',
-    pattern: /\b(translate|translation|in spanish|in english|en español|in polish|in arabic|in chinese)\b/i,
+    pattern: TRANSLATION_REQUEST,
   },
   {
     skill: 'plain-language-explainer',
@@ -44,7 +46,14 @@ const RULES = [
   },
 ];
 
-export function routeWithRules(message, skills) {
+export function routeWithRules(message, skills, { continueResearch = false } = {}) {
+  if (continueResearch) {
+    if (TRANSLATION_REQUEST.test(message) && skills.has('translator')) {
+      return { skill: 'translator', reason: 'The visitor requested a translation.' };
+    }
+    return { skill: 'impact-to-action-brief', reason: 'The visitor is continuing environmental research.' };
+  }
+
   for (const rule of RULES) {
     if (rule.pattern.test(message) && skills.has(rule.skill)) {
       return { skill: rule.skill, reason: 'Matched a keyword rule.' };

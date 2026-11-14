@@ -14,8 +14,7 @@ export const project = {
   problemStatement:
     'AI infrastructure creates environmental and community impacts that can be difficult to identify, evaluate, and address. This application helps people research ways to reduce data center impacts, assess potential mitigation measures and their trade-offs, and develop accountability questions using source-supported information.',
 
-  // One specific person. Give them a name, an age, and a situation.
-  targetUser: 'Alex, 18+, a Community resident curious about local environmental issues.',
+  targetUser: 'People living near data centers and anyone researching ways to reduce their environmental and community impacts.',
 
   community: 'Loudoun County, VA',
   theme: 'Climate Action / Environmental Accountability',

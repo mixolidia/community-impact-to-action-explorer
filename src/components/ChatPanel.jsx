@@ -3,7 +3,7 @@ import { api } from '../api.js';
 import { project } from '../../shared/project.config.js';
 import ReactMarkdown from 'react-markdown';
 
-export default function ChatPanel({ skills, question, onQuestionChange }) {
+export default function ChatPanel({ skills, issue, question, onQuestionChange }) {
   const [messages, setMessages] = useState([]);
   const [skill, setSkill] = useState('auto');
   const [busy, setBusy] = useState(false);
@@ -26,10 +26,11 @@ export default function ChatPanel({ skills, question, onQuestionChange }) {
     setError('');
     onQuestionChange('');
     const history = messages.slice(-6).map((m) => ({ role: m.role, text: m.text.slice(0, 4000) }));
+    const previousSkill = messages.at(-1)?.meta?.skill;
     setMessages((prev) => [...prev, { role: 'user', text }]);
     setBusy(true);
     try {
-      const data = await api.chat({ message: text, skill, history });
+      const data = await api.chat({ message: text, skill, issue, previousSkill, history });
       setMessages((prev) => [...prev, { role: 'assistant', text: data.reply, meta: data }]);
     } catch (err) {
       setError(err.message);

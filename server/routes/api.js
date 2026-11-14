@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { rateLimit } from 'express-rate-limit';
 import { aiMode, config } from '../config.js';
 import { hasDatabase } from '../db/pool.js';
 import { CATEGORIES } from '../db/seed-data.js';
@@ -10,6 +11,15 @@ import { ChatRequest, NewResource, ResourceQuery, firstError } from '../validati
 
 // Restaurant analogy: the waiter's routes. Every path here starts with /api.
 export const api = Router();
+
+const chatRateLimit = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 12,
+  keyGenerator: () => 'chat',
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { error: 'The demo is busy. Wait a minute, then send your question again.' },
+});
 
 // GET /api/health: is everything plugged in?
 api.get('/health', (_req, res) => {
@@ -25,7 +35,7 @@ api.get('/skills', async (_req, res) => {
 });
 
 // POST /api/chat: ask the agent
-api.post('/chat', async (req, res) => {
+api.post('/chat', chatRateLimit, async (req, res) => {
   const parsed = ChatRequest.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: firstError(parsed) });

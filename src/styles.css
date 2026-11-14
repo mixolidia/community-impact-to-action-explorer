@@ -135,6 +135,11 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(29,107,82,.2
   outline: 3px solid var(--sun);
   outline-offset: 2px;
 }
+.issue-sources { margin-top: 16px; }
+.issue-sources summary { color: var(--green-dark); cursor: pointer; font-weight: 700; }
+.issue-sources .resource-list { margin-top: 10px; }
+.issue-sources a { color: var(--green-dark); }
+.issue-sources p { margin-top: 4px; }
 .filters { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; }
 .add-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; padding: 12px; background: #f6f9f7; border-radius: 10px; }
 .add-form textarea, .add-form button { grid-column: 1 / -1; }

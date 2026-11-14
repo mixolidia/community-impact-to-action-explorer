@@ -1,35 +1,12 @@
 import { useState } from 'react';
+import { environmentalIssues } from '../../shared/environmental-issues.js';
+import { loudounSources } from '../../shared/loudoun-sources.js';
 
-const ISSUES = [
-  {
-    id: 'all',
-    title: 'All three issues',
-    description: 'Explore water use, noise, and air quality together, including possible connections and trade-offs.',
-  },
-  {
-    id: 'water',
-    title: 'Water use',
-    description: 'Explore cooling-related water demand, potential impacts, and ways to reduce consumption.',
-  },
-  {
-    id: 'noise',
-    title: 'Noise',
-    description: 'Explore noise from cooling equipment, generators, and other data center operations.',
-  },
-  {
-    id: 'air',
-    title: 'Air quality',
-    description: 'Explore potential air pollution from backup generators and other data center activities.',
-  },
-];
-
-export default function ResourceBoard({ onSelectIssue }) {
-  const [selectedIssue, setSelectedIssue] = useState('');
-
-  function handleSelect(issue) {
-    setSelectedIssue(issue);
-    onSelectIssue(issue);
-  }
+export default function ResourceBoard({ selectedIssue, onSelectIssue }) {
+  const [showSources, setShowSources] = useState(false);
+  const sources = loudounSources.filter(({ issues }) =>
+    !selectedIssue || selectedIssue === 'all' || issues.includes(selectedIssue)
+  );
 
   return (
     <section className="card resources" aria-labelledby="issues-title">
@@ -43,13 +20,16 @@ export default function ResourceBoard({ onSelectIssue }) {
       </p>
 
       <div className="issue-options" role="group" aria-label="Environmental issues">
-        {ISSUES.map((issue) => (
+        {environmentalIssues.map((issue) => (
           <button
             key={issue.id}
             type="button"
             className={`issue-option ${selectedIssue === issue.id ? 'selected' : ''}`}
             aria-pressed={selectedIssue === issue.id}
-            onClick={() => handleSelect(issue.id)}
+            onClick={() => {
+              onSelectIssue(issue);
+              setShowSources(true);
+            }}
           >
             <strong>{issue.title}</strong>
             <span>{issue.description}</span>
@@ -62,6 +42,18 @@ export default function ResourceBoard({ onSelectIssue }) {
           Question prepared. Review or edit it in Ask Impact Explorer, then click Send.
         </p>
       )}
+
+      <details className="issue-sources" open={showSources} onToggle={(event) => setShowSources(event.currentTarget.open)}>
+        <summary>Source links and notes</summary>
+        <ul className="resource-list">
+          {sources.map(({ id, name, url, description }) => (
+            <li key={id}>
+              <a href={url} target="_blank" rel="noreferrer">{name}</a>
+              <p>{description}</p>
+            </li>
+          ))}
+        </ul>
+      </details>
     </section>
   );
 }

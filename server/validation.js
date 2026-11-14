@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { CATEGORIES } from './db/seed-data.js';
+import { environmentalIssues } from '../shared/environmental-issues.js';
 
 // Every request is checked with zod .safeParse() BEFORE we touch the AI or the database.
 // Restaurant analogy: the order ticket must be filled out correctly before the kitchen cooks.
@@ -7,6 +8,8 @@ import { CATEGORIES } from './db/seed-data.js';
 export const ChatRequest = z.object({
   message: z.string().trim().min(1, 'Type a question first.').max(2000, 'Keep questions under 2000 characters.'),
   skill: z.string().regex(/^(auto|[a-z0-9-]+)$/).optional(),
+  previousSkill: z.string().regex(/^[a-z0-9-]+$/).optional(),
+  issue: z.enum(environmentalIssues.map(({ id }) => id)).optional(),
   history: z
     .array(z.object({ role: z.enum(['user', 'assistant']), text: z.string().max(4000) }))
     .max(12)

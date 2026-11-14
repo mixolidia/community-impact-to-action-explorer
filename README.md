@@ -8,6 +8,11 @@ and a full **spec-driven development** workflow with Gherkin tickets.
 The [public demo](https://community-impact-to-action-explorer.onrender.com/) runs on Render.
 For local development, the app also runs with an in-memory directory and mock AI.
 
+Choose Water use, Noise, or Air quality, then send the prepared question. Open the
+source links to inspect the evidence and ask follow-up questions in the same chat.
+The source notes also work when Gemini is unavailable. The public chat shares a
+limit of 12 requests per minute to conserve the demo's Gemini quota.
+
 ---
 
 ## Our team (fill this in)
@@ -17,7 +22,7 @@ For local development, the app also runs with an in-memory directory and mock AI
 | **Team name** | Insight to Impact (i2i) |
 | **App name** | Community Insight to Impact Explorer |
 | **Problem statement** | People researching the environmental and community impacts of data centers struggle to find reliable, accessible information about documented impacts, potential mitigation measures, and who is responsible for addressing them. |
-| **Target user** | Alex Rivera, a Loudoun County resident concerned about nearby data center development who wants to understand environmental impacts and prepare informed questions for local decision-makers.|
+| **Target user** | People living near data centers and anyone researching ways to reduce their environmental and community impacts. |
 | **Community** | Loudoun County, Virginia, Data Center Alley |
 | **Theme** | 	Climate Action / Environmental Accountability|
 | **How we'll know it works** | A user can select water use, noise, or air quality and receive an understandable AI-generated impact-to-action brief with evidence labels, at least two mitigation options and their trade-offs, relevant decision-makers, accountability questions, information gaps, and source links.|

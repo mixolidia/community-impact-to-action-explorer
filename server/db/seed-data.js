@@ -1,4 +1,4 @@
-import { loudounSources } from './loudoun-sources.js';
+import { loudounSources } from '../../shared/loudoun-sources.js';
 
 export const CATEGORIES = [
   'Food',

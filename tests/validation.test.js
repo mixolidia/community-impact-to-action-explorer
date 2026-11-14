@@ -6,6 +6,8 @@ test('chat requests need a message', () => {
   assert.equal(ChatRequest.safeParse({ message: '   ' }).success, false);
   assert.equal(ChatRequest.safeParse({ message: 'hi', skill: 'auto' }).success, true);
   assert.equal(ChatRequest.safeParse({ message: 'hi', skill: '../../etc' }).success, false);
+  assert.equal(ChatRequest.safeParse({ message: 'hi', issue: 'water', previousSkill: 'impact-to-action-brief' }).success, true);
+  assert.equal(ChatRequest.safeParse({ message: 'hi', issue: 'electricity' }).success, false);
 });
 
 test('new resources are checked with friendly messages', () => {
