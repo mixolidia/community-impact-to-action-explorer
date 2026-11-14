@@ -11,16 +11,13 @@ export default function ResourceBoard({ selectedIssue, onSelectIssue }) {
   return (
     <section className="card resources" aria-labelledby="issues-title">
       <div className="card-head">
-        <h2 id="issues-title">Explore Environmental Impacts</h2>
+        <h2 id="issues-title">Choose an issue</h2>
       </div>
 
-      <p>
-        Explore how data centers may affect communities in Loudoun County,
-        Virginia. Choose an issue to prepare a research question for Impact Explorer.
-      </p>
+      <p className="card-intro">Choose a topic to prepare a question and see the relevant sources.</p>
 
       <div className="issue-options" role="group" aria-label="Environmental issues">
-        {environmentalIssues.map((issue) => (
+        {[...environmentalIssues.slice(1), environmentalIssues[0]].map((issue) => (
           <button
             key={issue.id}
             type="button"
@@ -39,7 +36,7 @@ export default function ResourceBoard({ selectedIssue, onSelectIssue }) {
 
       {selectedIssue && (
         <p className="notice ok" role="status">
-          Question prepared. Review or edit it in Ask Impact Explorer, then click Send.
+          Question ready in Ask Impact Explorer. Edit it or select Send.
         </p>
       )}
 

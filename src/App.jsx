@@ -32,10 +32,13 @@ export default function App() {
           question={question}
           onQuestionChange={setQuestion}
         />
-        <SkillsPanel skills={skills} />
+        <details className="about-skills">
+          <summary>How the agent works</summary>
+          <SkillsPanel skills={skills} />
+        </details>
       </main>
       <footer className="footer">
-        Built for the CodeSquad AI Community Sprint. Answers come from AI and can be wrong. Never share personal information.
+        Built for the CodeSquad AI Community Sprint. Check AI answers against the linked sources. Keep personal information out of the chat.
       </footer>
     </>
   );

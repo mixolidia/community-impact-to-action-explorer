@@ -1,17 +1,12 @@
-# Community Sprint Starter
+# Community Insight to Impact Explorer
 
-**CodeSquad AI Community Sprint.** A ready-to-go starter for your community project:
-**React** front end, **Node/Express** back end, **Replit PostgreSQL** database, and an AI agent
-powered by **Google Gemini** through **LangChain**, with agent skills, **zod** validation,
-and a full **spec-driven development** workflow with Gherkin tickets.
+A CodeSquad AI Community Sprint project about data center impacts in Loudoun County, Virginia. It uses React, Vite, and CSS on the front end, Node.js and Express for the API, and Google Gemini through LangChain.
 
-The [public demo](https://community-impact-to-action-explorer.onrender.com/) runs on Render.
-For local development, the app also runs with an in-memory directory and mock AI.
+The [public demo](https://community-impact-to-action-explorer.onrender.com/) runs on Render with Gemini and a directory seeded from verified public sources. The source notes and environmental briefs use `shared/loudoun-sources.js`. PostgreSQL is optional for directory persistence. Local development also supports mock AI.
 
-Choose Water use, Noise, or Air quality, then send the prepared question. Open the
-source links to inspect the evidence and ask follow-up questions in the same chat.
-The source notes also work when Gemini is unavailable. The public chat shares a
-limit of 12 requests per minute to conserve the demo's Gemini quota.
+Choose Water use, Noise, or Air quality, then send the prepared question. Open the source links to inspect the evidence and ask follow-up questions. Choose **Print / Save PDF** in the chat header after a brief is ready to print it or save it with its sources. The source notes are available even when Gemini is unavailable. The public chat shares a limit of 12 requests per minute to conserve the demo's Gemini quota.
+
+Hero photo: [Aerial view of a Purcellville, Virginia residential area](https://www.travelandleisure.com/guide-to-loudoun-county-virginia-11766291), Gerville/Getty Images. Used with permission.
 
 ---
 
@@ -72,7 +67,7 @@ limit of 12 requests per minute to conserve the demo's Gemini quota.
 
   If Git says there is nothing to commit, skip the commit command and push. Check that `origin` points to the repository you intend to publish before pushing. Never commit API keys, `.env` files, or other secrets.
 
-## Get started on Replit (10 minutes)
+## Optional development on Replit
 
 ### 1. Get the code into Replit
 - **From GitHub:** in Replit, choose **Create App > Import from GitHub** and paste your team's repo URL.
@@ -164,7 +159,7 @@ answer goes back to React
 ## The database
 
 ### What community resources are for
-The resource directory starts with six public research references. The `resource-finder` skill searches the directory. Environmental briefs read the curated notes directly from `server/db/loudoun-sources.js` and link to the original publications.
+The resource directory starts with six public research references. The `resource-finder` skill searches the directory. Environmental briefs read the curated notes directly from `shared/loudoun-sources.js` and link to the original publications.
 
 Each listing needs a **name**, one supported **category**, and a clear **description**. The resources API also accepts **neighborhood**, **hours**, **phone**, **website**, **address**, and **languages**. Categories are `Food`, `Health`, `Housing`, `Youth`, `Education`, `Jobs`, `Seniors`, `Legal Aid`, and `Environment`.
 
@@ -180,7 +175,7 @@ Seed data is inserted only when the resources table is empty. Add only informati
   (or run `npm run db:setup`). There's a commented example at the bottom of that file.
 - **Write queries** in `server/db/resources.js` (or a new file next to it). Always use
   `$1, $2` placeholders, never string glue. That's what stops SQL injection.
-- **Maintain the evidence notes** and original publication links in `server/db/loudoun-sources.js`.
+- **Maintain the evidence notes** and original publication links in `shared/loudoun-sources.js`.
 
 ## API routes
 
